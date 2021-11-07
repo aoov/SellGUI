@@ -206,7 +206,6 @@ public class SellGUI {
         ItemMeta itemMeta = this.confirmItem.getItemMeta();
         itemMeta.setDisplayName(color(this.main.getLangConfig().getString("confirm-item-name")));
         confirmItem.setItemMeta(itemMeta);
-        ArrayList<String> lore = new ArrayList<>();
         if (this.main.getConfig().getBoolean("confirm-item-glimmer")) {
             itemMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
             itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
@@ -231,10 +230,20 @@ public class SellGUI {
         }
         ArrayList<String> lore = new ArrayList<>();
         for (ItemStack i : hashMap.keySet()) {
-            lore.add(color(this.main.getLangConfig().getString("item-total-format").replaceAll("%item%", getItemName(i)).replaceAll("%amount%", hashMap.get(i) + "").replaceAll("%price%", "" +
-                    getPrice(i)).replaceAll("%total%", (round(i.getAmount() * getPrice(i), 3)) + "")));
+            if (main.getConfig().getBoolean("round-places")) {
+                lore.add(color(this.main.getLangConfig().getString("item-total-format").replaceAll("%item%", getItemName(i)).replaceAll("%amount%", hashMap.get(i) + "").replaceAll("%price%", "" +
+                        getPrice(i)).replaceAll("%total%", (roundString(new BigDecimal(i.getAmount() * getPrice(i)).toPlainString(), main.getConfig().getInt("places-to-round"))) + "")));
+            } else {
+                lore.add(color(this.main.getLangConfig().getString("item-total-format").replaceAll("%item%", getItemName(i)).replaceAll("%amount%", hashMap.get(i) + "").replaceAll("%price%", "" +
+                        getPrice(i)).replaceAll("%total%", (i.getAmount() * getPrice(i)) + "")));
+            }
+
         }
-        lore.add(color(this.main.getLangConfig().getString("total-format").replaceAll("%total%", "" + round(getTotal(this.menu), 3))));
+        if (main.getConfig().getBoolean("round-places")) {
+            lore.add(color(this.main.getLangConfig().getString("total-format").replaceAll("%total%", "" + roundString(getTotal(this.menu) + "", main.getConfig().getInt("places-to-round")))));
+        } else {
+            lore.add(color(this.main.getLangConfig().getString("total-format").replaceAll("%total%", "" + getTotal(this.menu))));
+        }
         return lore;
     }
 
@@ -255,7 +264,7 @@ public class SellGUI {
             return CustomItemsCommand.getPrice(itemStack);
         }
 
-        if(this.main.getConfig().getBoolean("prevent-custom-item-selling") && itemStack.hasItemMeta()){
+        if (this.main.getConfig().getBoolean("prevent-custom-item-selling") && itemStack.hasItemMeta()) {
             return 0.00;
         }
         if (this.main.hasEssentials() && main.getConfig().getBoolean("use-essentials-price")) {
@@ -296,7 +305,11 @@ public class SellGUI {
                 }
             }
         }
-        return round(price, 3);
+        if (main.getConfig().getBoolean("round-places")) {
+            return round(price, main.getConfig().getInt("places-to-round"));
+        } else {
+            return price;
+        }
     }
 
     public double getTotal(Inventory inventory) {
@@ -309,7 +322,7 @@ public class SellGUI {
     }
 
     public void logSell(ItemStack itemStack) {
-        if(itemStack == null){
+        if (itemStack == null) {
             return;
         }
         BufferedWriter writer = null;
@@ -317,10 +330,10 @@ public class SellGUI {
             writer = new BufferedWriter(new FileWriter(getMain().getLog(), true));
             Date now = new Date();
             SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            if(itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()){
-                writer.append(itemStack.getType() +"|" + itemStack.getItemMeta().getDisplayName() + "|" + itemStack.getAmount() + "|" + getPrice(itemStack) + "|" + getPlayer().getName() + "|" + format.format(now) + "\n");
-            }else{
-                writer.append(itemStack.getType() +"|" + "N\\A" + "|" + itemStack.getAmount() + "|" + getPrice(itemStack) + "|" + getPlayer().getName() + "|" + format.format(now) + "\n");
+            if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
+                writer.append(itemStack.getType() + "|" + itemStack.getItemMeta().getDisplayName() + "|" + itemStack.getAmount() + "|" + getPrice(itemStack) + "|" + getPlayer().getName() + "|" + format.format(now) + "\n");
+            } else {
+                writer.append(itemStack.getType() + "|" + "N\\A" + "|" + itemStack.getAmount() + "|" + getPrice(itemStack) + "|" + getPlayer().getName() + "|" + format.format(now) + "\n");
             }
             writer.close();
         } catch (IOException e) {
@@ -332,10 +345,10 @@ public class SellGUI {
     public void sellItems(Inventory inventory) {
         this.main.getEcon().depositPlayer((OfflinePlayer) this.player, getTotal(inventory));
         this.player.sendMessage(color(this.main.getLangConfig().getString("sold-message").replaceAll("%total%", getTotal(inventory) + "")));
-        for (ItemStack itemStack : inventory.getContents()){
-            if(itemStack != null && !InventoryListeners.sellGUIItem(itemStack, this.player)){
-                if(getPrice(itemStack) != 0D){
-                    if(main.getConfig().getBoolean("log-transactions")){
+        for (ItemStack itemStack : inventory.getContents()) {
+            if (itemStack != null && !InventoryListeners.sellGUIItem(itemStack, this.player)) {
+                if (getPrice(itemStack) != 0D) {
+                    if (main.getConfig().getBoolean("log-transactions")) {
                         logSell(itemStack);
                     }
                     inventory.remove(itemStack);
@@ -386,8 +399,24 @@ public class SellGUI {
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
-        BigDecimal bd = BigDecimal.valueOf(value);
+        BigDecimal bd = new BigDecimal(value + "");
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
+    }
+
+    public static double round(String value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
+    public static String roundString(String value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value + "");
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.toPlainString();
     }
 }
