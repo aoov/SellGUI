@@ -29,5 +29,8 @@ prevent-custom-item-selling: false
 #Makes price of anything with ItemMeta (Display Name, Enchants, Lore) 0.00. Bypassable via custom item pricing
 log-transactions: false
 #Logs transactions
-
+#enables logging of transactions
+round-places: true
+#enables rounding of numbers
+places-to-round: 5
 
