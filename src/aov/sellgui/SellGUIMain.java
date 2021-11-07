@@ -52,8 +52,8 @@ public class SellGUIMain extends JavaPlugin {
         registerConfig();
         createConfigs();
         createPrices();
-        getServer().getPluginManager().registerEvents((Listener)new InventoryListeners(this), (Plugin)this);
-        getServer().getPluginManager().registerEvents((Listener)new SignListener(this), (Plugin)this);
+        getServer().getPluginManager().registerEvents((Listener) new InventoryListeners(this), (Plugin) this);
+        getServer().getPluginManager().registerEvents((Listener) new SignListener(this), (Plugin) this);
         getCommand("sellgui").setExecutor(new SellCommand(this));
         getCommand("customitems").setExecutor(new CustomItemsCommand(this));
         getCommand("sellall").setExecutor(new SellAllCommand(this));
@@ -64,12 +64,13 @@ public class SellGUIMain extends JavaPlugin {
                 getLogger().info("Plugin is up to date");
             } else {
                 getLogger().info("There is a new update available.");
-                getServer().getPluginManager().registerEvents((Listener)new UpdateWarning(this), (Plugin)this);
+                getServer().getPluginManager().registerEvents((Listener) new UpdateWarning(this), (Plugin) this);
             }
         });
     }
 
-    public void onDisable() {}
+    public void onDisable() {
+    }
 
     public void saveCustom() {
         try {
@@ -98,8 +99,9 @@ public class SellGUIMain extends JavaPlugin {
 
     public void createPrices() {
         for (Material m : Material.values()) {
-            if (!this.itemPricesConfig.contains(m.name()))
+            if (!this.itemPricesConfig.contains(m.name())) {
                 this.itemPricesConfig.set(m.name(), Double.valueOf(0.0D));
+            }
         }
         try {
             this.itemPricesConfig.save(this.itemPrices);
@@ -124,7 +126,7 @@ public class SellGUIMain extends JavaPlugin {
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null)
             return false;
-        econ = (Economy)rsp.getProvider();
+        econ = (Economy) rsp.getProvider();
         return (econ != null);
     }
 
@@ -132,7 +134,7 @@ public class SellGUIMain extends JavaPlugin {
         if (getServer().getPluginManager().getPlugin("Essentials") == null) {
             getServer().getLogger().warning("Essentials not found, disabling essentials support");
             return false;
-        }else {
+        } else {
             essentialsHolder = new EssentialsHolder();
             return true;
         }
@@ -165,10 +167,10 @@ public class SellGUIMain extends JavaPlugin {
             this.itemPrices.getParentFile().mkdirs();
             saveResource("item prices.yml", false);
         }
-        this.itemPricesConfig = (FileConfiguration)new YamlConfiguration();
+        this.itemPricesConfig = (FileConfiguration) new YamlConfiguration();
         try {
             this.itemPricesConfig.load(this.itemPrices);
-        } catch (IOException| InvalidConfigurationException e) {
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
         this.lang = new File(getDataFolder(), "lang.yml");
@@ -176,10 +178,10 @@ public class SellGUIMain extends JavaPlugin {
             this.lang.getParentFile().mkdirs();
             saveResource("lang.yml", false);
         }
-        this.langConfig = (FileConfiguration)new YamlConfiguration();
+        this.langConfig = (FileConfiguration) new YamlConfiguration();
         try {
             this.langConfig.load(this.lang);
-        } catch (IOException| InvalidConfigurationException e) {
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
         this.customItems = new File(getDataFolder(), "custom items.yml");
@@ -187,10 +189,10 @@ public class SellGUIMain extends JavaPlugin {
             this.customItems.getParentFile().mkdirs();
             saveResource("custom items.yml", false);
         }
-        this.customItemsConfig = (FileConfiguration)new YamlConfiguration();
+        this.customItemsConfig = (FileConfiguration) new YamlConfiguration();
         try {
             this.customItemsConfig.load(this.customItems);
-        } catch (IOException| InvalidConfigurationException e) {
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
         this.log = new File(getDataFolder(), "log.txt");
