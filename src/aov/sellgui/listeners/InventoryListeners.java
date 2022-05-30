@@ -4,6 +4,7 @@ import aov.sellgui.SellGUI;
 import aov.sellgui.SellGUIMain;
 import aov.sellgui.commands.CustomItemsCommand;
 import aov.sellgui.commands.SellCommand;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 public class InventoryListeners implements Listener {
     private static SellGUIMain main;
@@ -45,6 +47,10 @@ public class InventoryListeners implements Listener {
                     }
                 }
                 ItemStack itemStack = event.getClickedInventory().getItem(event.getSlot());
+                if (itemStack.hasItemMeta() && itemStack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(main, "sellgui"), PersistentDataType.BYTE)){
+                    event.setResult(Event.Result.DENY);
+                    event.setCancelled(true);
+                }
                 sellGUI.addSellItem();
                 if (itemStack.isSimilar(SellCommand.getSellGUI(p).getConfirmItem())) {
                     sellGUI.sellItems(sellGUI.getMenu());

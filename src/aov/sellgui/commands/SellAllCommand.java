@@ -11,6 +11,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,8 +39,11 @@ public class SellAllCommand implements CommandExecutor {
         return true;
     }
 
-    public double getPrice(ItemStack itemStack) {
+    public double getPrice(ItemStack itemStack, Player player) {
         double price = 0.0D;
+        if(!main.getConfig().getBoolean("sell-all-command-sell-enchanted") && itemStack.getEnchantments().size() > 0){
+            return price;
+        }
         if (CustomItemsCommand.getPrice(itemStack) != -1.0D)
             return CustomItemsCommand.getPrice(itemStack);
         ArrayList<String> flatBonus = new ArrayList<>();
@@ -76,23 +80,32 @@ public class SellAllCommand implements CommandExecutor {
                 }
             }
         }
+        for(PermissionAttachmentInfo pai : player.getEffectivePermissions()){
+            if(pai.getPermission().contains("sellgui.bonus.")){
+                if(price != 0){
+                    price += Double.parseDouble(pai.getPermission().replaceAll("sellgui.bonus.", ""));
+                }
+            }else if(pai.getPermission().contains("sellgui.multiplier.")){
+                price *= Double.parseDouble(pai.getPermission().replaceAll("sellgui.multiplier.",""));
+            }
+        }
         return round(price, 3);
     }
 
-    public double getTotal(Inventory inventory) {
+    public double getTotal(Inventory inventory, Player player) {
         double total = 0.0D;
         for (ItemStack itemStack : inventory.getContents()) {
             if (itemStack != null)
-                total += getPrice(itemStack) * itemStack.getAmount();
+                total += getPrice(itemStack, player) * itemStack.getAmount();
         }
         return total;
     }
 
     public void sellItems(Inventory inventory, Player player) {
-        this.main.getEcon().depositPlayer((OfflinePlayer) player, getTotal(inventory));
-        player.sendMessage(color(this.main.getLangConfig().getString("sold-message").replaceAll("%total%", round(getTotal(inventory),3) + "")));
+        this.main.getEcon().depositPlayer((OfflinePlayer) player, getTotal(inventory, player));
+        player.sendMessage(color(this.main.getLangConfig().getString("sold-message").replaceAll("%total%", round(getTotal(inventory, player),3) + "")));
         for (ItemStack itemStack : inventory) {
-            if (itemStack != null && getPrice(itemStack) != 0.0D) {
+            if (itemStack != null && getPrice(itemStack, player) != 0.0D) {
                 inventory.remove(itemStack);
             }
         }

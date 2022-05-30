@@ -13,19 +13,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.ListIterator;
 
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.persistence.PersistentDataType;
 
 public class SellGUI {
     private final SellGUIMain main;
@@ -156,6 +154,7 @@ public class SellGUI {
     private void createItems() {
         if (this.menuTitle != null || sellItem == null || filler == null) {
             this.menuTitle = this.main.getLangConfig().getString("menu-title");
+            NamespacedKey key = new NamespacedKey(main, "sellgui-item");
             sellItem = new ItemStack(Material.getMaterial(this.main.getConfig().getString("sell-item")));
             ItemMeta sellItemMeta = sellItem.getItemMeta();
             sellItemMeta.setDisplayName(color(this.main.getLangConfig().getString("sell-item-name")));
@@ -167,10 +166,12 @@ public class SellGUI {
                 sellItemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
             }
             sellItemMeta.setLore(lore);
+            sellItemMeta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, Byte.valueOf("1"));
             sellItem.setItemMeta(sellItemMeta);
             filler = new ItemStack(Material.valueOf(this.main.getConfig().getString("menu-filler-type")));
             ItemMeta fillerMeta = filler.getItemMeta();
             fillerMeta.setDisplayName(" ");
+            fillerMeta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, Byte.valueOf("1"));
             filler.setItemMeta(fillerMeta);
         }
     }
@@ -211,6 +212,7 @@ public class SellGUI {
             itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
         }
         itemMeta.setLore(makeLore());
+        itemMeta.getPersistentDataContainer().set(new NamespacedKey(main, "sellgui"), PersistentDataType.BYTE, Byte.valueOf("1"));
         this.confirmItem.setItemMeta(itemMeta);
     }
 
@@ -303,6 +305,15 @@ public class SellGUI {
                             .equalsIgnoreCase(itemStack.getEnchantmentLevel(enchantment) + ""))
                         price *= Double.parseDouble(temp2[2]);
                 }
+            }
+        }
+        for(PermissionAttachmentInfo pai : player.getEffectivePermissions()){
+            if(pai.getPermission().contains("sellgui.bonus.")){
+                if(price != 0){
+                    price += Double.parseDouble(pai.getPermission().replaceAll("sellgui.bonus.", ""));
+                }
+            }else if(pai.getPermission().contains("sellgui.multiplier.")){
+                price *= Double.parseDouble(pai.getPermission().replaceAll("sellgui.multiplier.",""));
             }
         }
         if (main.getConfig().getBoolean("round-places")) {

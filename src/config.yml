@@ -32,5 +32,7 @@ log-transactions: false
 #enables logging of transactions
 round-places: true
 #enables rounding of numbers
-places-to-round: 5
-
+places-to-round: 2
+#Amount of places for numbers to be rounded
+sell-all-command-sell-enchanted: false
+#Allows /sellall command to sell enchanted items.
