@@ -23,6 +23,8 @@ close-after-sell: true
 #closes menu after selling
 use-essentials-price: false
 #uses pricing from essentials
+use-permission-bonuses-on-essentials: true
+#uses permission based bonuses/multipliers on essentials pricing
 drop-items-on-close: false
 #Attempts to add items to inventory if false
 prevent-custom-item-selling: false

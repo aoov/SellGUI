@@ -1,11 +1,11 @@
-package aov.sellgui;
+package me.aov.sellgui;
 
-import aov.sellgui.commands.CustomItemsCommand;
-import aov.sellgui.commands.SellAllCommand;
-import aov.sellgui.commands.SellCommand;
-import aov.sellgui.listeners.InventoryListeners;
-import aov.sellgui.listeners.SignListener;
-import aov.sellgui.listeners.UpdateWarning;
+import me.aov.sellgui.commands.CustomItemsCommand;
+import me.aov.sellgui.commands.SellAllCommand;
+import me.aov.sellgui.commands.SellCommand;
+import me.aov.sellgui.listeners.InventoryListeners;
+import me.aov.sellgui.listeners.SignListener;
+import me.aov.sellgui.listeners.UpdateWarning;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
@@ -45,6 +45,8 @@ public class SellGUIMain extends JavaPlugin {
 
     private File log;
 
+    private SellCommand sellCommand;
+
     private FileConfiguration logConfiguration;
 
     public void onEnable() {
@@ -53,7 +55,8 @@ public class SellGUIMain extends JavaPlugin {
         createPrices();
         getServer().getPluginManager().registerEvents((Listener) new InventoryListeners(this), (Plugin) this);
         getServer().getPluginManager().registerEvents((Listener) new SignListener(this), (Plugin) this);
-        getCommand("sellgui").setExecutor(new SellCommand(this));
+        this.sellCommand = new SellCommand(this);
+        getCommand("sellgui").setExecutor(sellCommand);
         getCommand("customitems").setExecutor(new CustomItemsCommand(this));
         getCommand("sellall").setExecutor(new SellAllCommand(this));
         setupEconomy();
@@ -139,6 +142,9 @@ public class SellGUIMain extends JavaPlugin {
         }
     }
 
+    public SellCommand getSellCommand() {
+        return sellCommand;
+    }
 
     public SellGUIMain getMain() {
         return this;

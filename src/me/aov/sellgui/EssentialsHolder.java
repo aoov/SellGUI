@@ -1,4 +1,4 @@
-package aov.sellgui;
+package me.aov.sellgui;
 
 import com.earth2me.essentials.Essentials;
 import org.bukkit.Bukkit;

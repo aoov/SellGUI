@@ -1,8 +1,8 @@
-package aov.sellgui.listeners;
+package me.aov.sellgui.listeners;
 
-import aov.sellgui.SellGUI;
-import aov.sellgui.SellGUIMain;
-import aov.sellgui.commands.SellCommand;
+import me.aov.sellgui.SellGUI;
+import me.aov.sellgui.SellGUIMain;
+import me.aov.sellgui.commands.SellCommand;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;

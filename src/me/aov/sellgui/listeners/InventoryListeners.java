@@ -1,9 +1,9 @@
-package aov.sellgui.listeners;
+package me.aov.sellgui.listeners;
 
-import aov.sellgui.SellGUI;
-import aov.sellgui.SellGUIMain;
-import aov.sellgui.commands.CustomItemsCommand;
-import aov.sellgui.commands.SellCommand;
+import me.aov.sellgui.SellGUI;
+import me.aov.sellgui.SellGUIMain;
+import me.aov.sellgui.commands.CustomItemsCommand;
+import me.aov.sellgui.commands.SellCommand;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

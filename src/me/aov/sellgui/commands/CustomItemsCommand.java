@@ -1,6 +1,6 @@
-package aov.sellgui.commands;
+package me.aov.sellgui.commands;
 
-import aov.sellgui.SellGUIMain;
+import me.aov.sellgui.SellGUIMain;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

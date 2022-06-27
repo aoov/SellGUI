@@ -1,7 +1,7 @@
-package aov.sellgui.commands;
+package me.aov.sellgui.commands;
 
-import aov.sellgui.SellGUI;
-import aov.sellgui.SellGUIMain;
+import me.aov.sellgui.SellGUI;
+import me.aov.sellgui.SellGUIMain;
 
 import java.util.ArrayList;
 

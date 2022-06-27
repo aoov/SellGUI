@@ -1,8 +1,8 @@
-package aov.sellgui;
+package me.aov.sellgui;
 
-import aov.sellgui.commands.CustomItemsCommand;
-import aov.sellgui.commands.SellCommand;
-import aov.sellgui.listeners.InventoryListeners;
+import me.aov.sellgui.commands.CustomItemsCommand;
+import me.aov.sellgui.commands.SellCommand;
+import me.aov.sellgui.listeners.InventoryListeners;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -271,7 +271,25 @@ public class SellGUI {
         }
         if (this.main.hasEssentials() && main.getConfig().getBoolean("use-essentials-price")) {
             if (main.getEssentialsHolder().getEssentials() != null) {
-                return round(main.getEssentialsHolder().getPrice(itemStack).doubleValue(), 3);
+                if (main.getConfig().getBoolean("use-permission-bonuses-on-essentials")) {
+                    double temp = round(main.getEssentialsHolder().getPrice(itemStack).doubleValue(), main.getConfig().getInt("places-to-round"));
+                    for (PermissionAttachmentInfo pai : player.getEffectivePermissions()) {
+                        if (pai.getPermission().contains("sellgui.bonus.") && pai.getValue()) {
+                            if (temp != 0) {
+                                temp += Double.parseDouble(pai.getPermission().replaceAll("sellgui.bonus.", ""));
+                            }
+                        } else if (pai.getPermission().contains("sellgui.multiplier.") && pai.getValue()) {
+                            temp *= Double.parseDouble(pai.getPermission().replaceAll("sellgui.multiplier.", ""));
+                        }
+                    }
+                    if (main.getConfig().getBoolean("round-places")) {
+                        return round(temp, main.getConfig().getInt("places-to-round"));
+                    } else {
+                        return temp;
+                    }
+                } else {
+                    return round(main.getEssentialsHolder().getPrice(itemStack).doubleValue(), main.getConfig().getInt("places-to-round"));
+                }
             }
         }
 
@@ -307,13 +325,13 @@ public class SellGUI {
                 }
             }
         }
-        for(PermissionAttachmentInfo pai : player.getEffectivePermissions()){
-            if(pai.getPermission().contains("sellgui.bonus.")){
-                if(price != 0){
+        for (PermissionAttachmentInfo pai : player.getEffectivePermissions()) {
+            if (pai.getPermission().contains("sellgui.bonus.") && pai.getValue()) {
+                if (price != 0) {
                     price += Double.parseDouble(pai.getPermission().replaceAll("sellgui.bonus.", ""));
                 }
-            }else if(pai.getPermission().contains("sellgui.multiplier.")){
-                price *= Double.parseDouble(pai.getPermission().replaceAll("sellgui.multiplier.",""));
+            } else if (pai.getPermission().contains("sellgui.multiplier.") && pai.getValue()) {
+                price *= Double.parseDouble(pai.getPermission().replaceAll("sellgui.multiplier.", ""));
             }
         }
         if (main.getConfig().getBoolean("round-places")) {

@@ -1,4 +1,4 @@
-package aov.sellgui;
+package me.aov.sellgui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
