@@ -28,16 +28,16 @@ public class SellGUIMain extends JavaPlugin {
     private ConsoleCommandSender console = getServer().getConsoleSender();
 
     private File itemPrices;
-
     private FileConfiguration itemPricesConfig;
 
     private File lang;
-
     private FileConfiguration langConfig;
 
     private File customItems;
-
     private FileConfiguration customItemsConfig;
+
+    private File customMenuItems;
+    private FileConfiguration customMenuItemsConfig;
 
     private boolean useEssentials;
 
@@ -69,6 +69,7 @@ public class SellGUIMain extends JavaPlugin {
                 getServer().getPluginManager().registerEvents((Listener) new UpdateWarning(this), (Plugin) this);
             }
         });
+        customMenuItemsConfig
     }
 
     public void onDisable() {
@@ -77,6 +78,8 @@ public class SellGUIMain extends JavaPlugin {
     public void saveCustom() {
         try {
             this.customItemsConfig.save(this.customItems);
+            //TODO Remove this
+            this.customMenuItemsConfig.save(this.customMenuItems);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -175,6 +178,17 @@ public class SellGUIMain extends JavaPlugin {
         this.itemPricesConfig = (FileConfiguration) new YamlConfiguration();
         try {
             this.itemPricesConfig.load(this.itemPrices);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        this.customMenuItems = new File(getDataFolder(), "custom menu items.yml");
+        if (!this.customMenuItems.exists()) {
+            this.customMenuItems.getParentFile().mkdirs();
+            saveResource("custom menu items.yml", false);
+        }
+        this.customMenuItemsConfig = (FileConfiguration) new YamlConfiguration();
+        try {
+            this.customMenuItemsConfig.load(this.itemPrices);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
